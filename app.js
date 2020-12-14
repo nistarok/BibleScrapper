@@ -4,8 +4,8 @@ var FormData = require('form-data');
 const sqlite3 = require('sqlite3');
 const sqlite = require('sqlite');
 
-const url = "https://www.bibliatodo.com/pt/a-biblia/almeida-revista-e-corrigida/genesis-1"
 
+const url = "https://www.bibliatodo.com/pt/a-biblia/almeida-revista-atualizada-1993/salmos-138"
 
 async function getChapters(name) {
   let data = new FormData();
@@ -55,14 +55,14 @@ async function getVersicles(book) {
   for(const [id] of arr.entries()){
     const capther = id+1
 
-    book_url = `https://www.bibliatodo.com/pt/a-biblia/almeida-revista-e-corrigida/${book.id}-${capther}`
+    book_url = `https://www.bibliatodo.com/pt/a-biblia/almeida-revista-atualizada-1993/${book.id}-${capther}`
     let booksRes = await axios(book_url)
 
     const html = booksRes.data;
     const $ = cheerio.load(html);
 
     let verses = []
-    console.log('Book chapter', book, id+1)
+    // console.log('Book chapter', book, id+1)
 
     $('#imprimible').each(function(){
       $(this).find("#imprimible > p").each(function(){
@@ -72,10 +72,11 @@ async function getVersicles(book) {
 
     // console.log(verses)
     for(const [id, element] of verses.entries()){
-      console.log("Before insert", book, element)
-      res = await db.run("insert into books (name, chapter, versicle) values (?,?,?)", [book.value, capther, element])
-      console.log(res)
-      console.log($(this).text())
+      // console.log("Before insert", book, element)
+      const versicle_number = parseInt(element.split(".")[0])
+      res = await db.run("insert into books (name, chapter, versicle, version, versicle_number) values (?,?,?,?,?)", [book.value, capther, element, 'almeida-revista-atualizada-1993',versicle_number ])
+      // console.log(res)
+      // console.log($(this).text())
     }
 
   }
@@ -87,7 +88,7 @@ async function main() {
   const db = await sqlite.open({ filename: './database.sqlite', driver: sqlite3.Database });
 
 
-  await db.run('create table if not exists books (id integer primary key, name text, chapter integer, versicle text)');
+  await db.run('create table if not exists books (id integer primary key, name text, chapter integer, versicle text, version text, versicle_number integer)');
 
   db.close()
   // Url de Exemplo
