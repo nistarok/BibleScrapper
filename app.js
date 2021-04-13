@@ -7,6 +7,7 @@ const sqlite = require('sqlite');
 
 
 
+
 const url = "https://www.bibliatodo.com/pt/a-biblia/almeida-revista-atualizada-1993/salmos-138"
 
 async function getChapters(name) {
